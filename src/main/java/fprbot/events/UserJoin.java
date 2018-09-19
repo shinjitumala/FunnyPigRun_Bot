@@ -38,16 +38,21 @@ public class UserJoin implements ServerMemberJoinListener {
 						"All users in this server will be given a role based on their nationality."
 								+ " For now, you will be given the role "
 								+ new_immigrant.getMentionTag() + "."
-								+ "You can assign yourself in an exsisting role using the '$role' command."
-								+ "If no role fits you, then feel free to use '$role not found' command"
+								+ "You can assign yourself in an exsisting role using the `$role` command."
+								+ "If no role fits you, then feel free to use `$role null` command"
 								+ " in order to notify funny.pig.run.")
-				.addField("The shameless self promotion",
+				.addInlineField("The shameless self promotion",
 						"funny.pig.run does some stuff online. "
 								+ "You can find out more by checking "
 								+ self_promotion_channel.getMentionTag() + ".")
-				.addField("funny.pig.run Gaming", "This server now has "
-						+ event.getServer().getMemberCount() + "members!")
-				.setTimestampToNow();
+				.addInlineField("funny.pig.run Gaming", "This server now has "
+						+ event.getServer().getMemberCount() + " members!")
+				.setTimestampToNow()
+				.setAuthor("Oink Oink",
+						"https://github.com/shinjitumala/FunnyPigRun_Bot",
+						"https://avatars3.githubusercontent.com/u/30512876?s=460&v=4")
+				.setThumbnail(
+						"https://static-cdn.jtvnw.net/jtv_user_pictures/panel-154435522-image-b09a58ec-2d43-4efa-b7b0-5acda3e01a24");
 
 		welcome_channel.sendMessage(embed);
 	}

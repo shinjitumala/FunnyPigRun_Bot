@@ -14,7 +14,7 @@ import fprbot.commands.core.MessageHandler;
 import fprbot.events.UserJoin;
 
 public class FPR_Bot {
-	private static final String TOKEN = "NDgwNDQxNDE2NTA2NTQwMDMy.DlsXCA.JDYtMxgVTSTGyhxrjtckh5aM7dg";
+	private static String TOKEN;
 	private static final String DEFAULT_PREFIX = "$$";
 
 	private static Logger logger = LogManager.getLogger(FPR_Bot.class);
@@ -32,6 +32,13 @@ public class FPR_Bot {
 	// ----------
 
 	public static void main(String args[]) {
+		if (args.length < 1) {
+			System.out.println("Usage: java fpr_bot <bot token>");
+			return;
+		}
+
+		TOKEN = args[0];
+
 		FallbackLoggerConfiguration.setDebug(true);
 
 		org.javacord.api.DiscordApi api = new DiscordApiBuilder()
