@@ -5,30 +5,29 @@ import java.util.NoSuchElementException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.javacord.api.DiscordApiBuilder;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.util.logging.FallbackLoggerConfiguration;
 
 import fprbot.commands.core.MessageHandler;
+import fprbot.commands.core.ReactionAddHandler;
+import fprbot.commands.core.ReactionRemoveHandler;
+import fprbot.events.CustomEmojiCreate;
+import fprbot.events.UserBan;
 import fprbot.events.UserJoin;
+import fprbot.events.UserLeave;
+import fprbot.events.UserUnban;
 
 public class FPR_Bot {
 	private static String TOKEN;
-	private static final String DEFAULT_PREFIX = "$$";
+	private static final String DEFAULT_PREFIX = "$";
 
-	private static Logger logger = LogManager.getLogger(FPR_Bot.class);
+	private static final Logger LOGGER = LogManager.getLogger(FPR_Bot.class);
 
 	// ----------
 	// Objects in funny.pig.run's server
+	private static FPR_Server_Objects FPR;
 	// Server
 	private static Server fpr_server;
-	// Channels
-	private static ServerTextChannel welcome_channel;
-	private static ServerTextChannel self_promotion_channel;
-	private static ServerTextChannel rules_channel;
-	// Roles
-	private static Role new_immigrant;
 	// ----------
 
 	public static void main(String args[]) {
@@ -44,7 +43,7 @@ public class FPR_Bot {
 		org.javacord.api.DiscordApi api = new DiscordApiBuilder()
 				.setToken(TOKEN).login().join();
 
-		logger.info("You can invite me by using the following url: "
+		LOGGER.info("You can invite me by using the following url: "
 				+ api.createBotInvite());
 
 		// ----------
@@ -53,26 +52,55 @@ public class FPR_Bot {
 			// Server
 			fpr_server = api.getServerById("414315826557091840").get();
 
+			// FPR_Server_Objects
+			FPR = new FPR_Server_Objects(fpr_server, LOGGER);
+		} catch (NoSuchElementException ex) {
+			LOGGER.fatal(
+					"The server \"funny.pig.run Gaming\" is missing! Cannot continue!");
+			return;
+		}
+
+		// Initialize individual objects and add them to FPR_Server_Objects
+		try {
 			// Channels
-			welcome_channel = fpr_server
-					.getTextChannelById("414316475797602305").get();
-			self_promotion_channel = fpr_server
-					.getTextChannelById("414316416318177291").get();
-			rules_channel = fpr_server.getTextChannelById("414318128516956163")
-					.get();
+			FPR.add_tc("townhall",
+					fpr_server.getTextChannelById("414316475797602305").get());
+			FPR.add_tc("self_promotion",
+					fpr_server.getTextChannelById("414316416318177291").get());
+			FPR.add_tc("rules",
+					fpr_server.getTextChannelById("414318128516956163").get());
+			FPR.add_tc("news",
+					fpr_server.getTextChannelById("478821976186683402").get());
+
+			FPR.add_tc("oink general",
+					fpr_server.getTextChannelById("414319326238343169").get());
+			FPR.add_tc("oink commands",
+					fpr_server.getTextChannelById("452361154925297684").get());
+			FPR.add_tc("oink agora",
+					fpr_server.getTextChannelById("492303377544249344").get());
 
 			// Roles
-			new_immigrant = fpr_server.getRoleById("481333688043307008").get();
+			FPR.add_r("oink oink",
+					fpr_server.getRoleById("414316850231377921").get());
+			FPR.add_r("new_immigrant",
+					fpr_server.getRoleById("481333688043307008").get());
+
 		} catch (NoSuchElementException ex) {
-			logger.fatal(
-					"Some of the server elements in \"funny.pig.run Gaming\" is missing! Cannot continue!");
+			LOGGER.fatal(
+					"Some elements in \"funny.pig.run Gaming\" is missing! Cannot continue!");
 			return;
 		}
 		// ----------
 
 		// Add listeners
-		api.addMessageCreateListener(new MessageHandler(DEFAULT_PREFIX));
-		api.addServerMemberJoinListener(new UserJoin(welcome_channel,
-				new_immigrant, self_promotion_channel, rules_channel));
+		api.addMessageCreateListener(new MessageHandler(FPR, DEFAULT_PREFIX));
+		api.addServerMemberJoinListener(new UserJoin(FPR));
+		api.addServerMemberLeaveListener(new UserLeave(FPR));
+		api.addKnownCustomEmojiCreateListener(new CustomEmojiCreate(FPR));
+		api.addServerMemberBanListener(new UserBan(FPR));
+		api.addServerMemberUnbanListener(new UserUnban(FPR));
+		api.addReactionAddListener(new ReactionAddHandler(FPR));
+		api.addReactionRemoveListener(new ReactionRemoveHandler(FPR));
+
 	}
 }
