@@ -25,6 +25,14 @@ public class MyUtils {
     return ret;
   }
 
+  public static EmbedBuilder helpTemplate(String command, String Description, Role permission) {
+    EmbedBuilder ret = MyUtils.embedTemplate(MainCommand.prefix() + command, Description, Color.GRAY)
+        .addField("Permissions", "Must have role " + permission.getMentionTag() + " or above.\n" + "User the command `"
+            + MainCommand.prefix() + "rolelist` to see role hierarchy.");
+
+    return ret;
+  }
+
   /**
    * Checks whether a user has a role in a server
    *
@@ -104,5 +112,13 @@ public class MyUtils {
       }
     }
     return segments;
+  }
+
+  public static Color getRoleColor(Role role) {
+    Optional<Color> color = role.getColor();
+    if (color.isPresent()) {
+      return color.get();
+    }
+    return Color.blue;
   }
 }
