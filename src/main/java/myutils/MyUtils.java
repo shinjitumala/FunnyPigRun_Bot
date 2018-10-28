@@ -1,8 +1,12 @@
 package myutils;
 
 import java.awt.Color;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Optional;
+import java.util.zip.DeflaterOutputStream;
 
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
@@ -16,20 +20,44 @@ import main.FPR;
 
 public class MyUtils {
   public static EmbedBuilder embedTemplate(String title, String Description, Color color) {
-    EmbedBuilder ret = new EmbedBuilder().setTimestampToNow()
+    EmbedBuilder ret = new EmbedBuilder()
+        .setTimestampToNow()
         .setAuthor(FPR.bot().getDisplayName(FPR.server()), "https://github.com/shinjitumala/FunnyPigRun_Bot",
             FPR.bot().getAvatar())
-        .setFooter("Created by " + FPR.me().getName(), FPR.me().getAvatar()).setTitle(title).setDescription(Description)
+        .setFooter("Created by " + FPR.me().getName(), FPR.me().getAvatar())
+        .setTitle(title)
+        .setDescription(Description)
         .setColor(color);
 
     return ret;
   }
 
   public static EmbedBuilder helpTemplate(String command, String Description, Role permission) {
-    EmbedBuilder ret = MyUtils.embedTemplate(MainCommand.prefix() + command, Description, Color.GRAY)
+    EmbedBuilder ret = MyUtils
+        .embedTemplate(MainCommand.prefix() + command, Description, Color.GRAY)
         .addField("Permissions", "Must have role " + permission.getMentionTag() + " or above.\n" + "User the command `"
             + MainCommand.prefix() + "rolelist` to see role hierarchy.");
 
+    return ret;
+  }
+
+  public static EmbedBuilder errorTemplate(String reason, String command) {
+    EmbedBuilder ret = MyUtils
+        .embedTemplate("Oops!", reason, Color.RED)
+        .addField("Help", "You can get more information about this command by typing `" + MainCommand.prefix() + command
+            + " --help`.");
+
+    return ret;
+  }
+
+  public static EmbedBuilder errorTemplate(String reason) {
+    EmbedBuilder ret = MyUtils.embedTemplate("Oops!", reason, Color.RED);
+
+    return ret;
+  }
+
+  public static EmbedBuilder completeTemplate(String message) {
+    EmbedBuilder ret = MyUtils.embedTemplate("Done!", message, Color.BLUE);
     return ret;
   }
 
@@ -120,5 +148,17 @@ public class MyUtils {
       return color.get();
     }
     return Color.blue;
+  }
+
+  public static Role findNationality(String tag) {
+    return FPR.nationality().get(tag);
+  }
+
+  public static void writeObject(Object o, String path) throws IOException {
+    ObjectOutputStream oos = new ObjectOutputStream(
+        new DeflaterOutputStream(new FileOutputStream(ServerFiles.NATIONALITY.toString())));
+
+    oos.writeObject(o);
+    oos.close();
   }
 }

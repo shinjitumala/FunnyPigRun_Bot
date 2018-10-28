@@ -9,6 +9,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 
 import main.FPR;
+import myutils.MyUtils;
 
 public class MainCommand implements MessageCreateListener {
   private static String    PREFIX;
@@ -70,11 +71,16 @@ public class MainCommand implements MessageCreateListener {
         }
       } catch (ECommandExecutionException e) {
         if (e.toString().equals("Permission denied.")) {
-          FPR.log().info("MainCommand: Error executing command at " + c.getClass().getName() + "! Reason: \""
-              + e.toString() + "\"");
+          FPR
+              .log()
+              .info("MainCommand: User " + user.get().getMentionTag() + " has no permission for command at "
+                  + c.getClass().getName() + ".");
         } else {
-          FPR.log().error("MainCommand: Error executing command at " + c.getClass().getName() + "! Reason: \""
-              + e.toString() + "\"");
+          FPR
+              .log()
+              .error("MainCommand: Error executing command at " + c.getClass().getName() + "! Reason: \"" + e.toString()
+                  + "\"");
+          event.getChannel().sendMessage(MyUtils.errorTemplate(e.toString(), e.command()));
           return;
         }
       }
