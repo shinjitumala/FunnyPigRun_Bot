@@ -1,7 +1,8 @@
 package myutils;
 
 public enum ServerFiles {
-  NATIONALITY("nationality.fpr");
+  NATIONALITY("nationality.fpr"),
+  MEMBERS("members.fpr");
 
   private final String path;
 

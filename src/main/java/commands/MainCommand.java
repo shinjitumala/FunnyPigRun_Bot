@@ -44,6 +44,7 @@ public class MainCommand implements MessageCreateListener {
       if (server.get() != FPR.server()) { // Ignore messages not from funny.pig.run Gaming.
         return;
       }
+    } else if (event.isPrivateMessage()) { // Do not ignore private messages.
     } else {
       return; // Ignore if not server message.
     }
@@ -56,6 +57,9 @@ public class MainCommand implements MessageCreateListener {
     } else {
       return; // Ignore if message was from a web hook and such.
     }
+
+    // Call leveling system
+    FPR.level().chat(event);
 
     if (!event.getMessage().getContent().startsWith(PREFIX)) {
       return; // Ignore if message does not have prefix.

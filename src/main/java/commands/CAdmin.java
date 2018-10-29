@@ -1,6 +1,5 @@
 package commands;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
@@ -56,9 +55,8 @@ public class CAdmin extends ICommand {
     for (String key : FPR.nationality().keySet()) {
       list.add(new SRole(FPR.nationality().get(key), key));
     }
-    try {
-      MyUtils.writeObject(list, ServerFiles.NATIONALITY.toString());
-    } catch (IOException e) {
+
+    if (!MyUtils.writeObject(list, ServerFiles.NATIONALITY.toString())) {
       FPR.log().error("CAdmin: roleAdd() > Error occured while writing to " + ServerFiles.NATIONALITY.toString() + ".");
       throw new ECommandExecutionException("Error writing to file", "role");
     }

@@ -1,12 +1,9 @@
 package main;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
-import java.util.zip.InflaterInputStream;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -18,6 +15,7 @@ import events.UserBan;
 import events.UserJoin;
 import events.UserLeave;
 import events.UserUnban;
+import myutils.MyUtils;
 import myutils.SRole;
 import myutils.ServerFiles;
 import myutils.ServerRole;
@@ -44,7 +42,7 @@ public class Main {
 
     try {
       // Initialize FPR.java
-      FPR.initialize(api.getServerById("414315826557091840").get(), api.getYourself(), api.getOwner().get()); // funny.pig.run
+      FPR.initialize(api.getServerById("414315826557091840").get(), api.getYourself(), api.getOwner().get(), api); // funny.pig.run
       // Gaming
 
       // Channels
@@ -76,9 +74,8 @@ public class Main {
       FPR.addRole(ServerRole.OINK.toString(), FPR.server().getRoleById("414316850231377921").get());
       FPR.addRole(ServerRole.DRIFTER.toString(), FPR.server().getRoleById("481333688043307008").get());
 
-      try (ObjectInputStream ois = new ObjectInputStream(
-          new InflaterInputStream(new FileInputStream(ServerFiles.NATIONALITY.toString())))) {
-        Object obj = ois.readObject();
+      try {
+        Object obj = MyUtils.readObject(ServerFiles.NATIONALITY.toString());
         if (obj instanceof ArrayList) {
           for (SRole r : (ArrayList<SRole>) obj) {
             FPR.nationality().put(r.tag(), r.restore());

@@ -1,18 +1,26 @@
 package main;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
+import level.LevelCore;
+import myutils.SUser;
+
 /**
  * Class that holds all shared variables for "funny.pig.run Gaming" server.
  */
 public class FPR {
+  // Discord API
+  private static DiscordApi api;
+
   // Important users
   private static User FPRBot;
   private static User me;
@@ -24,8 +32,9 @@ public class FPR {
   private static Server                                   server;
   private static final HashMap<String, ServerTextChannel> textChannels = new HashMap<>();
   private static final HashMap<String, Role>              roles        = new HashMap<>();
-
-  private static HashMap<String, Role> nationality = new HashMap<>();
+  private static HashMap<String, Role>                    nationality  = new HashMap<>();
+  private static ArrayList<SUser>                         members      = new ArrayList<>();
+  private static LevelCore                                levelcore    = new LevelCore();
 
   /**
    * initialize the server variable
@@ -33,10 +42,11 @@ public class FPR {
    * @param init_server funny.pig.run Gaming server object
    * @param thisBot     the User object of this bot
    */
-  public static void initialize(Server init_server, User thisBot, User FPR) {
+  public static void initialize(Server init_server, User thisBot, User FPR, DiscordApi discord) {
     server = init_server;
     FPRBot = thisBot;
     me = FPR;
+    api = discord;
   }
 
   /**
@@ -150,5 +160,23 @@ public class FPR {
    */
   public static HashMap<String, Role> nationality() {
     return nationality;
+  }
+
+  /**
+   * Gets the DiscordApi object for this bot
+   *
+   * @return
+   */
+  public static DiscordApi api() {
+    return api;
+  }
+
+  /**
+   * Gets the leveling system core.
+   *
+   * @return
+   */
+  public static LevelCore level() {
+    return levelcore;
   }
 }
