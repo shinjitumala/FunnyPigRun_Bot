@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration name="Javacord Example Bot" status="INFO" strict="true">
+<Configuration name="funny.pig.run bot" status="INFO" strict="true">
     <Appenders>
         <Console name="Console Appender">
             <PatternLayout>
@@ -16,7 +16,7 @@
         </File>
     </Appenders>
     <Loggers>
-        <Root level="INFO">
+        <Root level="DEBUG">
             <AppenderRef ref="Console Appender"/>
             <AppenderRef ref="File Appender"/>
         </Root>

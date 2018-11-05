@@ -1,6 +1,7 @@
 package commands;
 
 import java.util.Optional;
+import java.util.Scanner;
 import java.util.Vector;
 
 import org.javacord.api.entity.server.Server;
@@ -9,11 +10,11 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 
 import main.FPR;
-import myutils.MyUtils;
+import myutils.UTemplates;
 
 public class MainCommand implements MessageCreateListener {
-  private static String    PREFIX;
-  private Vector<ICommand> commands;
+  private static String           PREFIX;
+  private Vector<AbstractCommand> commands;
 
   /**
    * Default constructor.
@@ -28,7 +29,7 @@ public class MainCommand implements MessageCreateListener {
    *
    * @param command new command module
    */
-  public void addModule(ICommand command) {
+  public void addModule(AbstractCommand command) {
     commands.add(command);
   }
 
@@ -39,54 +40,71 @@ public class MainCommand implements MessageCreateListener {
    */
   @Override
   public void onMessageCreate(MessageCreateEvent event) {
+    // ***************************************************************//
+    // Response Conditions
+    // ***************************************************************//
     Optional<Server> server = event.getServer();
     if (server.isPresent()) {
-      if (server.get() != FPR.server()) { // Ignore messages not from funny.pig.run Gaming.
+      // Ignore messages not from funny.pig.run Gaming.
+      if (server.get() != FPR.server()) {
         return;
       }
-    } else if (event.isPrivateMessage()) { // Do not ignore private messages.
+
+    } else if (event.isPrivateMessage()) {
+      // Do not ignore private messages.
     } else {
-      return; // Ignore if not server message.
+      // Ignore if not server message or private message.
+      return;
     }
 
     Optional<User> user = event.getMessage().getUserAuthor();
     if (user.isPresent()) {
-      if (user.get().isBot()) { // Ignore messages from bot.
+      // Ignore messages from bot.
+      if (user.get().isBot()) {
         return;
       }
     } else {
-      return; // Ignore if message was from a web hook and such.
+      // Ignore if message was from a web hook and such.
+      return;
     }
 
+    FPR
+        .log()
+          .info(event.getMessage().getAuthor().getDiscriminatedName() + ": "
+              + event.getMessage().getContent());
+    // ***************************************************************//
+    // Non Commands
+    // ***************************************************************//
     // Call leveling system
     FPR.level().chat(event);
 
+    // ***************************************************************//
+    // Commands
+    // ***************************************************************//
     if (!event.getMessage().getContent().startsWith(PREFIX)) {
       return; // Ignore if message does not have prefix.
     }
 
+    // New scanner for parsing commands.
+    Scanner scanner;
+
     FPR.log().debug("MainCommand: Command recieved.");
-    FPR.log().info(event.getMessage().getAuthor().getDiscriminatedName() + ": " + event.getMessage().getContent());
-    for (ICommand c : commands) {
+    for (AbstractCommand c : commands) {
+      scanner = new Scanner(event.getMessage().getContent());
+      // Skips the prefix.
+      scanner.skip(PREFIX);
       try {
-        if (c.parse(event)) {
+        if (c.parse(event, scanner)) {
           FPR.log().debug("MainCommand: Command execution success!");
           return;
         }
-      } catch (ECommandExecutionException e) {
-        if (e.toString().equals("Permission denied.")) {
-          FPR
-              .log()
-              .info("MainCommand: User " + user.get().getMentionTag() + " has no permission for command at "
-                  + c.getClass().getName() + ".");
-        } else {
-          FPR
-              .log()
-              .error("MainCommand: Error executing command at " + c.getClass().getName() + "! Reason: \"" + e.toString()
-                  + "\"");
-          event.getChannel().sendMessage(MyUtils.errorTemplate(e.toString(), e.command()));
-          return;
-        }
+      } catch (ExCommandException e) {
+        FPR
+            .log()
+              .error("MainCommand: Error executing command at " + c.getClass().getName()
+                  + "! Reason: \"" + e.toString() + "\"");
+        event.getChannel().sendMessage(UTemplates.errorTemplate(e.toString(), "<command>"));
+        return;
       }
     }
     FPR.log().debug("MainCommand: No such command!");

@@ -1,13 +1,13 @@
-package myutils;
+package myutils.enums;
 
-public enum ServerRole {
+public enum ERoles {
   PIGGIES("piggies"),
   OINK("oink oink"),
   DRIFTER("drifter");
 
   private final String key;
 
-  ServerRole(String key) {
+  ERoles(String key) {
     this.key = key;
   }
 

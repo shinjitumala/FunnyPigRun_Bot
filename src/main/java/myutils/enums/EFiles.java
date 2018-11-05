@@ -1,12 +1,12 @@
-package myutils;
+package myutils.enums;
 
-public enum ServerFiles {
+public enum EFiles {
   NATIONALITY("nationality.fpr"),
   MEMBERS("members.fpr");
 
   private final String path;
 
-  ServerFiles(String path) {
+  EFiles(String path) {
     this.path = path;
   }
 

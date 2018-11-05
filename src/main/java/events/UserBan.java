@@ -8,8 +8,8 @@ import org.javacord.api.event.server.member.ServerMemberBanEvent;
 import org.javacord.api.listener.server.member.ServerMemberBanListener;
 
 import main.FPR;
-import myutils.MyUtils;
-import myutils.ServerTextChannel;
+import myutils.UTemplates;
+import myutils.enums.ETextChannels;
 
 public class UserBan implements ServerMemberBanListener {
 
@@ -17,12 +17,12 @@ public class UserBan implements ServerMemberBanListener {
   public void onServerMemberBan(ServerMemberBanEvent event) {
     User user = event.getUser();
 
-    EmbedBuilder embed = MyUtils
+    EmbedBuilder embed = UTemplates
         .embedTemplate("Uh oh!", user.getMentionTag() + " has been banned from the server!", Color.RED)
         .addField(FPR.server().getName(),
             "This server is now left with " + FPR.server().getMemberCount() + " members!");
 
-    FPR.getTextChannel(ServerTextChannel.TOWNHALL.toString()).sendMessage(embed);
+    FPR.getTextChannel(ETextChannels.TOWNHALL.toString()).sendMessage(embed);
   }
 
 }

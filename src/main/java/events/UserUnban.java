@@ -8,8 +8,8 @@ import org.javacord.api.event.server.member.ServerMemberUnbanEvent;
 import org.javacord.api.listener.server.member.ServerMemberUnbanListener;
 
 import main.FPR;
-import myutils.MyUtils;
-import myutils.ServerTextChannel;
+import myutils.UTemplates;
+import myutils.enums.ETextChannels;
 
 public class UserUnban implements ServerMemberUnbanListener {
 
@@ -17,10 +17,10 @@ public class UserUnban implements ServerMemberUnbanListener {
   public void onServerMemberUnban(ServerMemberUnbanEvent event) {
     User user = event.getUser();
 
-    EmbedBuilder embed = MyUtils
+    EmbedBuilder embed = UTemplates
         .embedTemplate("Hm...", user.getMentionTag() + " has been unbanned from the server!", Color.YELLOW);
 
-    FPR.getTextChannel(ServerTextChannel.TOWNHALL.toString()).sendMessage(embed);
+    FPR.getTextChannel(ETextChannels.TOWNHALL.toString()).sendMessage(embed);
   }
 
 }

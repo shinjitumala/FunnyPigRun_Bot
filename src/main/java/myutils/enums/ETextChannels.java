@@ -1,6 +1,6 @@
-package myutils;
+package myutils.enums;
 
-public enum ServerTextChannel {
+public enum ETextChannels {
   TOWNHALL("townhall"),
   SELF_PROMOTION("self promotion"),
   RULES("rules"),
@@ -11,7 +11,7 @@ public enum ServerTextChannel {
 
   private final String key;
 
-  ServerTextChannel(String key) {
+  ETextChannels(String key) {
     this.key = key;
   }
 

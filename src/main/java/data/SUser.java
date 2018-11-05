@@ -1,4 +1,4 @@
-package myutils;
+package data;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -10,17 +10,19 @@ import org.javacord.api.entity.user.User;
 
 import level.LevelUserData;
 import main.FPR;
+import myutils.UFiles;
+import myutils.enums.EFiles;
 
 public class SUser implements Serializable {
-  private static ArrayList<SUser> members;
+  private static ArrayList<SUser> members = new ArrayList<>();
 
   /**
    *
    */
   private static final long serialVersionUID = -5917988694028362811L;
 
-  private final long          id;
-  private final LevelUserData level;
+  private final long         id;
+  public final LevelUserData level;
 
   public SUser(User user, LevelUserData level) {
     id = user.getId();
@@ -67,12 +69,28 @@ public class SUser implements Serializable {
   }
 
   /**
+   * Find the user in the user data.
+   *
+   * @param user
+   * @return
+   * @throws NoSuchElementException
+   */
+  public static SUser find(User user) throws NoSuchElementException {
+    for (SUser u : members) {
+      if (u.id() == user.getId()) {
+        return u;
+      }
+    }
+    throw new NoSuchElementException();
+  }
+
+  /**
    * Save the current members data.
    *
    * @return
    */
   public static boolean save() {
-    return MyUtils.writeObject(members, ServerFiles.MEMBERS.toString());
+    return UFiles.writeObject(members, EFiles.MEMBERS.toString());
   }
 
   /**
@@ -81,11 +99,20 @@ public class SUser implements Serializable {
   @SuppressWarnings("unchecked")
   public static boolean load() {
     try {
-      Object obj = MyUtils.readObject(ServerFiles.MEMBERS.toString());
+      Object obj = UFiles.readObject(EFiles.MEMBERS.toString());
       members = new ArrayList<>((ArrayList<SUser>) obj);
       return true;
     } catch (ClassNotFoundException | IOException e) {
       return false;
     }
+  }
+
+  /**
+   * Gets the ArrayList of user data.
+   *
+   * @return
+   */
+  public static ArrayList<SUser> members() {
+    return members;
   }
 }

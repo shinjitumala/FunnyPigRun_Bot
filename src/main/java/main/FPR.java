@@ -11,8 +11,8 @@ import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
+import data.SUser;
 import level.LevelCore;
-import myutils.SUser;
 
 /**
  * Class that holds all shared variables for "funny.pig.run Gaming" server.

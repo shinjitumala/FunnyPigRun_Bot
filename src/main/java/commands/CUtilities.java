@@ -3,7 +3,9 @@ package commands;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -13,52 +15,24 @@ import org.javacord.api.event.message.MessageCreateEvent;
 
 import main.FPR;
 import myutils.MyUtils;
-import myutils.ServerRole;
+import myutils.UTemplates;
+import myutils.enums.ERoles;
 
-public class CUtilities extends ICommand {
-  public CUtilities() {
-    super(FPR.getRole(ServerRole.DRIFTER.toString()));
-  }
+public class CUtilities extends AbstractCommand {
+  @ACommand(
+      command = "iam",
+      permission = ERoles.DRIFTER,
+      help = "Usage: `" + "<FPR>" + "iam <role tag>`\n"
+          + "Will change your role to the specified one. \n"
+          + "You can check the tag for a role using the `" + "<FPR>" + "rolelist` command.")
+  protected boolean iam(MessageCreateEvent event, Scanner scanner)
+      throws ExCommandException, NoSuchElementException, IllegalStateException {
+    String tag = scanner.next();
 
-  @Override
-  protected boolean exec(String[] command, MessageCreateEvent event) throws ECommandExecutionException {
-    if (command.length == 1) {
-      switch (command[0]) {
-        case "ping":
-          return ping(event);
-        case "rolelist":
-          return rolelist(event);
-      }
-    } else if ((command.length == 2) && command[1].equals("--help")) {
-      switch (command[0]) {
-        case "ping":
-          event.getChannel().sendMessage(MyUtils.helpTemplate(command[0], Hping, permission));
-          return true;
-        case "rolelist":
-          event.getChannel().sendMessage(MyUtils.helpTemplate(command[0], Hrolelist, permission));
-          return true;
-        case "iam":
-          event.getChannel().sendMessage(MyUtils.helpTemplate(command[0], Hiam, permission));
-      }
-    } else if (command.length == 2) {
-      switch (command[0]) {
-        case "iam":
-          return iam(event, command[1]);
-      }
-    }
-    return false;
-  }
-
-  // --------------------------------
-  private final String Hiam = "Usage: `" + MainCommand.prefix() + "iam <role tag>`\n"
-      + "Will change your role to the specified one. \n" + "You can check the tag for a role using the `"
-      + MainCommand.prefix() + "rolelist` command.";
-
-  private boolean iam(MessageCreateEvent event, String tag) throws ECommandExecutionException {
     Role nationality = MyUtils.findNationality(tag);
     if (nationality == null) {
       FPR.log().error("CUtilites: iam() > Cannot find a role with tag \"" + tag + "\".");
-      throw new ECommandExecutionException("Cannot find a role with that tag.", "iam");
+      throw new ExCommandException("Cannot find a role with that tag.");
     }
 
     Optional<User> user = event.getMessage().getUserAuthor();
@@ -77,38 +51,40 @@ public class CUtilities extends ICommand {
         user.get().addRole(nationality).get();
       } catch (InterruptedException | ExecutionException e) {
         FPR.log().error("CUtilites: iam() > Error while managing roles.");
-        throw new ECommandExecutionException("Error while managing roles.", "iam");
+        throw new ExCommandException("Error while managing roles.");
       }
 
-      EmbedBuilder embed = MyUtils
-          .completeTemplate(
-              user.get().getMentionTag() + ", your role has been changed to " + nationality.getMentionTag() + ".");
+      EmbedBuilder embed = UTemplates
+          .completeTemplate(user.get().getMentionTag() + ", your role has been changed to "
+              + nationality.getMentionTag() + ".");
       event.getChannel().sendMessage(embed);
+      return true;
     } else {
       return false;
     }
-
-    return false;
   }
 
-  // --------------------------------
-  private final String Hping = "Pings the bot in order to check if it is alive.";
-
-  private boolean ping(MessageCreateEvent event) throws ECommandExecutionException {
-    EmbedBuilder embed = MyUtils
+  @ACommand(
+      command = "ping",
+      permission = ERoles.DRIFTER,
+      help = "Pings the bot in order to check if it is alive.")
+  protected boolean ping(MessageCreateEvent event) throws ExCommandException {
+    EmbedBuilder embed = UTemplates
         .embedTemplate("Pong!",
-            "Don't worry " + event.getMessage().getUserAuthor().get().getMentionTag() + "!\n I'm alive and well :)",
+            "Don't worry " + event.getMessage().getUserAuthor().get().getMentionTag()
+                + "!\n I'm alive and well :)",
             Color.BLUE);
 
     event.getChannel().sendMessage(embed);
     return true;
   }
 
-  // --------------------------------
-  private final String Hrolelist = "Lists all the roles in funny.pig.run Gaming form top to bottom with tags if available.\n"
-      + "Use this to check the permission hierarchy. Or to check a role's tag.";
-
-  private boolean rolelist(MessageCreateEvent event) {
+  @ACommand(
+      command = "rolelist",
+      permission = ERoles.DRIFTER,
+      help = "Lists all the roles in funny.pig.run Gaming form top to bottom with tags if available.\n"
+          + "Use this to check the permission hierarchy. Or to check a role's tag.")
+  protected boolean rolelist(MessageCreateEvent event) {
     List<Role> tmp = FPR.server().getRoles();
     ArrayList<Role> roles = new ArrayList<>(tmp);
     roles.sort((r1, r2) -> {
@@ -129,9 +105,9 @@ public class CUtilities extends ICommand {
       }
     }
 
-    EmbedBuilder embed = MyUtils
-        .embedTemplate("Roles in funny.pig.gaming from top to bottom with tags if available", sb.toString(),
-            Color.GRAY);
+    EmbedBuilder embed = UTemplates
+        .embedTemplate("Roles in funny.pig.gaming from top to bottom with tags if available",
+            sb.toString(), Color.GRAY);
 
     event.getChannel().sendMessage(embed);
     return true;
