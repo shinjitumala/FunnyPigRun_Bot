@@ -12,10 +12,6 @@ import myutils.UFiles;
 import myutils.enums.EFiles;
 
 public class SRole implements Serializable {
-
-  /**
-   *
-   */
   private static final long serialVersionUID = 2360516558823515729L;
 
   private final long   id;

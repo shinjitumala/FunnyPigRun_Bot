@@ -1,7 +1,8 @@
 package commands;
 
-@SuppressWarnings("serial")
 public class ExCommandException extends Exception {
+  private static final long serialVersionUID = 480472982956019394L;
+
   private String reason;
 
   public ExCommandException(String reason) {

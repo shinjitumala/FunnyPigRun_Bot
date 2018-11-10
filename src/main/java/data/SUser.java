@@ -15,12 +15,8 @@ import myutils.UFiles;
 import myutils.enums.EFiles;
 
 public class SUser implements Serializable {
-  private static ArrayList<SUser> members = new ArrayList<>();
-
-  /**
-   *
-   */
-  private static final long serialVersionUID = -5917988694028362811L;
+  private static final long       serialVersionUID = -5917988694028362811L;
+  private static ArrayList<SUser> members          = new ArrayList<>();
 
   private final long         id;
   public final LevelUserData level;

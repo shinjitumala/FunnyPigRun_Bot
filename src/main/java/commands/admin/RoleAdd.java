@@ -20,14 +20,18 @@ import myutils.enums.ERoles;
 @ACommand(
     command = "addrole",
     permission = ERoles.PIGGIES,
-    help = "Usage: `addrole <tag> <id>`\n"
-        + "Adds the role with <id> to be used as a nationality role with the tag <tag>."
-        + MainCommand.PREFIX)
+    help = "Usage: `" + MainCommand.PREFIX + "addrole <tag> <id>`\n"
+        + "Adds the role with <id> to be used as a nationality role with the tag <tag>.")
 public class RoleAdd implements ICommand {
   @Override
   public boolean run(MessageCreateEvent event, Scanner scanner) throws ExCommandException {
-    String tag = scanner.next();
-    String id = scanner.next();
+    String tag, id;
+    try {
+      tag = scanner.next();
+      id = scanner.next();
+    } catch (NoSuchElementException e) {
+      throw new ExCommandException("Insufficient Arguments.");
+    }
 
     Role role;
     try {

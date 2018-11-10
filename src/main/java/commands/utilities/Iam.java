@@ -14,6 +14,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import commands.ACommand;
 import commands.ExCommandException;
 import commands.ICommand;
+import commands.MainCommand;
 import main.FPR;
 import myutils.MyUtils;
 import myutils.UTemplates;
@@ -22,9 +23,10 @@ import myutils.enums.ERoles;
 @ACommand(
     command = "iam",
     permission = ERoles.DRIFTER,
-    help = "Usage: `" + "<FPR>" + "iam <role tag>`\n"
+    help = "Usage: `" + MainCommand.PREFIX + "iam <role tag>`\n"
         + "Will change your role to the specified one. \n"
-        + "You can check the tag for a role using the `" + "<FPR>" + "rolelist` command.")
+        + "You can check the tag for a role using the `" + MainCommand.PREFIX
+        + "rolelist` command.")
 public class Iam implements ICommand {
 
   @Override

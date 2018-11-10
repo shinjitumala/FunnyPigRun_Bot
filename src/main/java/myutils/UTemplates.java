@@ -34,8 +34,11 @@ public class UTemplates {
   public static EmbedBuilder errorTemplate(String reason, String command) {
     EmbedBuilder ret = UTemplates
         .embedTemplate("Oops!", reason, Color.RED)
-          .addField("Help", "You can get more information about this command by typing `"
-              + MainCommand.PREFIX + command + " --help`.");
+          .addField("Help", "For more information about the command, use `" + MainCommand.PREFIX
+              + "help " + command + "`.\n"
+              + "If you think this is a bug, please feel free to create a new issue on github by "
+              + "[clicking here](https://github.com/shinjitumala/FunnyPigRun_Bot/issues)."
+              + " Or you could simply tag " + FPR.me().getMentionTag() + " to get his attention.");
 
     return ret;
   }

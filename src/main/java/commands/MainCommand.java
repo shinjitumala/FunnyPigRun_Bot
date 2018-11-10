@@ -96,34 +96,27 @@ public class MainCommand implements MessageCreateListener {
     String command = scanner.next().toLowerCase();
 
     boolean help = false;
-    if (scanner.hasNext()) {
-      if (scanner.next().toLowerCase().equals("--help")) {
-        help = true;
-      }
-      scanner.close();
-      scanner = new Scanner(message);
+    if (command.equals("help")) {
+      help = true;
+      command = scanner.next().toLowerCase();
     }
     for (ICommand c : commands) {
       ACommand annotation = c.getClass().getAnnotation(ACommand.class);
       if (annotation.command().equals(command)) {
         try {
-          if (c.run(event, scanner) && !help) {
+          if (!help && c.run(event, scanner)) {
             return;
           } else if (help) {
             EmbedBuilder embed = UTemplates
                 .helpTemplate(annotation.command(), annotation.help(),
                     FPR.getRole(annotation.permission().toString()));
             event.getChannel().sendMessage(embed);
+            return;
           } else {
             throw new ExCommandException("MainCommand: Command returned with status 1.");
           }
         } catch (ExCommandException e) {
-          EmbedBuilder embed = UTemplates
-              .errorTemplate("Error", e.toString())
-                .addField("Help", "For more information about the command, use `"
-                    + MainCommand.PREFIX + command + " --help`.\n"
-                    + "If you think this is a bug, please feel free to create a new issue on github by "
-                    + "[clicking here](https://github.com/shinjitumala/FunnyPigRun_Bot/issues).");
+          EmbedBuilder embed = UTemplates.errorTemplate(e.toString(), command);
           event.getChannel().sendMessage(embed);
         }
       }
