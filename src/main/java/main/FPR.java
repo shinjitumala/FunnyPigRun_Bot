@@ -1,6 +1,5 @@
 package main;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,7 +10,6 @@ import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
-import data.SUser;
 import level.LevelCore;
 
 /**
@@ -33,7 +31,6 @@ public class FPR {
   private static final HashMap<String, ServerTextChannel> textChannels = new HashMap<>();
   private static final HashMap<String, Role>              roles        = new HashMap<>();
   private static HashMap<String, Role>                    nationality  = new HashMap<>();
-  private static ArrayList<SUser>                         members      = new ArrayList<>();
   private static LevelCore                                levelcore    = new LevelCore();
 
   /**

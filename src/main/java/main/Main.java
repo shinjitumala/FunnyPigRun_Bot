@@ -1,28 +1,24 @@
 package main;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
-import org.javacord.api.entity.user.User;
 
-import commands.CAdmin;
-import commands.CUtilities;
 import commands.MainCommand;
+import commands.admin.RoleAdd;
+import commands.utilities.Iam;
+import commands.utilities.Ping;
+import commands.utilities.RoleList;
 import data.SRole;
 import data.SUser;
 import events.UserBan;
 import events.UserJoin;
 import events.UserLeave;
 import events.UserUnban;
-import myutils.UFiles;
 import myutils.enums.EFiles;
 import myutils.enums.ERoles;
-import myutils.enums.EStrings;
 import myutils.enums.ETextChannels;
 
 public class Main {
@@ -31,11 +27,10 @@ public class Main {
    *
    * @param args Bot Token
    */
-  @SuppressWarnings("unchecked")
   public static void main(String[] args) {
     if (args.length != 1) {
       System.err.println("Usage: FPRBot <Bot Token>");
-      return;
+      System.exit(1);
     }
 
     FPR.log().info("Starting bot...");
@@ -80,46 +75,27 @@ public class Main {
       FPR.addRole(ERoles.OINK.toString(), FPR.server().getRoleById("414316850231377921").get());
       FPR.addRole(ERoles.DRIFTER.toString(), FPR.server().getRoleById("481333688043307008").get());
 
-      try {
-        Object obj = UFiles.readObject(EFiles.NATIONALITY.toString());
-        if (obj instanceof ArrayList) {
-          for (SRole r : (ArrayList<SRole>) obj) {
-            FPR.nationality().put(r.tag(), r.restore());
-          }
-        } else {
-          FPR
-              .log()
-                .warn("Main: Found object " + obj.getClass().toString() + " in file \""
-                    + EFiles.NATIONALITY.toString() + "\". Object was saved to the wrong file?");
-        }
-      } catch (IOException | ClassNotFoundException e) {
+      // Initialize roles
+      if (!SRole.load()) {
         FPR.log().error("Main: Error while reading \"" + EFiles.NATIONALITY.toString() + "\".");
       }
 
-      // Initialize Members
-      if (SUser.load()) {
-
-      } else {
+      // Initialize members
+      if (!SUser.load()) {
         FPR.log().error("Main: Error while initializing user data.");
-      }
-      Collection<User> temp = FPR.server().getMembers();
-      for (User u : temp) {
-        try {
-          SUser.find(u);
-        } catch (NoSuchElementException e) {
-          SUser.add(u);
-        }
       }
 
     } catch (NoSuchElementException | InterruptedException | ExecutionException ex) {
       FPR.log().fatal("Main: Failed to initialize variables for funny.pig.run Gaming. Exiting...");
-      return;
+      System.exit(1);
     }
 
     // Initialize command modules
-    MainCommand commands = new MainCommand(EStrings.PREFIX.toString());
-    commands.addModule(new CUtilities());
-    commands.addModule(new CAdmin());
+    MainCommand commands = new MainCommand();
+    commands.addModule(new RoleAdd());
+    commands.addModule(new Ping());
+    commands.addModule(new RoleList());
+    commands.addModule(new Iam());
 
     // Add event listeners
     api.addMessageCreateListener(commands);

@@ -24,9 +24,9 @@ public class UTemplates {
 
   public static EmbedBuilder helpTemplate(String command, String Description, Role permission) {
     EmbedBuilder ret = UTemplates
-        .embedTemplate(MainCommand.prefix() + command, Description, Color.GRAY)
+        .embedTemplate(MainCommand.PREFIX + command, Description, Color.GRAY)
           .addField("Permissions", "Must have role " + permission.getMentionTag() + " or above.\n"
-              + "User the command `" + MainCommand.prefix() + "rolelist` to see role hierarchy.");
+              + "User the command `" + MainCommand.PREFIX + "rolelist` to see role hierarchy.");
 
     return ret;
   }
@@ -35,7 +35,7 @@ public class UTemplates {
     EmbedBuilder ret = UTemplates
         .embedTemplate("Oops!", reason, Color.RED)
           .addField("Help", "You can get more information about this command by typing `"
-              + MainCommand.prefix() + command + " --help`.");
+              + MainCommand.PREFIX + command + " --help`.");
 
     return ret;
   }

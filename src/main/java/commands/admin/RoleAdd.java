@@ -1,6 +1,5 @@
-package commands;
+package commands.admin;
 
-import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -8,21 +7,25 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import commands.ACommand;
+import commands.ExCommandException;
+import commands.ICommand;
+import commands.MainCommand;
 import data.SRole;
 import main.FPR;
-import myutils.UFiles;
 import myutils.UTemplates;
 import myutils.enums.EFiles;
 import myutils.enums.ERoles;
 
-public class CAdmin extends AbstractCommand {
-  @ACommand(
-      command = "addrole",
-      permission = ERoles.PIGGIES,
-      help = "Usage: `addrole <tag> <id>`\n"
-          + "Adds the role with <id> to be used as a nationality role with the tag <tag>.")
-  public static boolean roleAdd(MessageCreateEvent event, Scanner scanner)
-      throws ExCommandException, NoSuchElementException, IllegalStateException {
+@ACommand(
+    command = "addrole",
+    permission = ERoles.PIGGIES,
+    help = "Usage: `addrole <tag> <id>`\n"
+        + "Adds the role with <id> to be used as a nationality role with the tag <tag>."
+        + MainCommand.PREFIX)
+public class RoleAdd implements ICommand {
+  @Override
+  public boolean run(MessageCreateEvent event, Scanner scanner) throws ExCommandException {
     String tag = scanner.next();
     String id = scanner.next();
 
@@ -38,23 +41,18 @@ public class CAdmin extends AbstractCommand {
 
     FPR.nationality().put(tag, role);
 
-    ArrayList<SRole> list = new ArrayList<>();
-    for (String key : FPR.nationality().keySet()) {
-      list.add(new SRole(FPR.nationality().get(key), key));
-    }
-
-    if (!UFiles.writeObject(list, EFiles.NATIONALITY.toString())) {
+    if (!SRole.save()) {
       FPR
           .log()
             .error("CAdmin: roleAdd() > Error occured while writing to "
                 + EFiles.NATIONALITY.toString() + ".");
-      throw new ExCommandException("Error writing to file");
+      throw new ExCommandException("Error writing to file.");
     }
 
     EmbedBuilder embed = UTemplates
         .completeTemplate("The role " + role.getMentionTag() + " was added with the tag \"" + tag
             + "\".\n" + "You can now change your nationality to this role by using the `"
-            + MainCommand.prefix() + "iam " + tag + "` command.");
+            + MainCommand.PREFIX + "iam " + tag + "` command.");
     event.getChannel().sendMessage(embed);
 
     return true;

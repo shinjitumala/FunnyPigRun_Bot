@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.Scanner;
 import java.util.Vector;
 
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -13,15 +14,14 @@ import main.FPR;
 import myutils.UTemplates;
 
 public class MainCommand implements MessageCreateListener {
-  private static String           PREFIX;
-  private Vector<AbstractCommand> commands;
+  public static final String PREFIX = "<FPR>";
+  private Vector<ICommand>   commands;
 
   /**
    * Default constructor.
    */
-  public MainCommand(String prefix) {
+  public MainCommand() {
     commands = new Vector<>();
-    PREFIX = prefix;
   }
 
   /**
@@ -29,7 +29,13 @@ public class MainCommand implements MessageCreateListener {
    *
    * @param command new command module
    */
-  public void addModule(AbstractCommand command) {
+  public void addModule(ICommand command) {
+    try {
+      command.getClass().getAnnotation(ACommand.class);
+    } catch (NullPointerException e) {
+      FPR.log().fatal("MainCommand: Tried to add invalid module to commands.");
+      System.exit(1);
+    }
     commands.add(command);
   }
 
@@ -68,10 +74,8 @@ public class MainCommand implements MessageCreateListener {
       return;
     }
 
-    FPR
-        .log()
-          .info(event.getMessage().getAuthor().getDiscriminatedName() + ": "
-              + event.getMessage().getContent());
+    String message = event.getMessageContent();
+    FPR.log().info(event.getMessage().getAuthor().getDiscriminatedName() + ": " + message);
     // ***************************************************************//
     // Non Commands
     // ***************************************************************//
@@ -81,41 +85,49 @@ public class MainCommand implements MessageCreateListener {
     // ***************************************************************//
     // Commands
     // ***************************************************************//
-    if (!event.getMessage().getContent().startsWith(PREFIX)) {
+    if (!message.startsWith(PREFIX)) {
       return; // Ignore if message does not have prefix.
     }
 
-    // New scanner for parsing commands.
-    Scanner scanner;
-
     FPR.log().debug("MainCommand: Command recieved.");
-    for (AbstractCommand c : commands) {
-      scanner = new Scanner(event.getMessage().getContent());
-      // Skips the prefix.
-      scanner.skip(PREFIX);
-      try {
-        if (c.parse(event, scanner)) {
-          FPR.log().debug("MainCommand: Command execution success!");
-          return;
+    // New scanner for parsing commands.
+    Scanner scanner = new Scanner(message);
+    scanner.skip(PREFIX);
+    String command = scanner.next().toLowerCase();
+
+    boolean help = false;
+    if (scanner.hasNext()) {
+      if (scanner.next().toLowerCase().equals("--help")) {
+        help = true;
+      }
+      scanner.close();
+      scanner = new Scanner(message);
+    }
+    for (ICommand c : commands) {
+      ACommand annotation = c.getClass().getAnnotation(ACommand.class);
+      if (annotation.command().equals(command)) {
+        try {
+          if (c.run(event, scanner) && !help) {
+            return;
+          } else if (help) {
+            EmbedBuilder embed = UTemplates
+                .helpTemplate(annotation.command(), annotation.help(),
+                    FPR.getRole(annotation.permission().toString()));
+            event.getChannel().sendMessage(embed);
+          } else {
+            throw new ExCommandException("MainCommand: Command returned with status 1.");
+          }
+        } catch (ExCommandException e) {
+          EmbedBuilder embed = UTemplates
+              .errorTemplate("Error", e.toString())
+                .addField("Help", "For more information about the command, use `"
+                    + MainCommand.PREFIX + command + " --help`.\n"
+                    + "If you think this is a bug, please feel free to create a new issue on github by "
+                    + "[clicking here](https://github.com/shinjitumala/FunnyPigRun_Bot/issues).");
+          event.getChannel().sendMessage(embed);
         }
-      } catch (ExCommandException e) {
-        FPR
-            .log()
-              .error("MainCommand: Error executing command at " + c.getClass().getName()
-                  + "! Reason: \"" + e.toString() + "\"");
-        event.getChannel().sendMessage(UTemplates.errorTemplate(e.toString(), "<command>"));
-        return;
       }
     }
     FPR.log().debug("MainCommand: No such command!");
-  }
-
-  /**
-   * Gets the prefix.
-   *
-   * @return prefix
-   */
-  public static String prefix() {
-    return PREFIX;
   }
 }

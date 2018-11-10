@@ -3,6 +3,7 @@ package data;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 
@@ -101,10 +102,18 @@ public class SUser implements Serializable {
     try {
       Object obj = UFiles.readObject(EFiles.MEMBERS.toString());
       members = new ArrayList<>((ArrayList<SUser>) obj);
-      return true;
     } catch (ClassNotFoundException | IOException e) {
       return false;
     }
+    Collection<User> temp = FPR.server().getMembers();
+    for (User u : temp) {
+      try {
+        SUser.find(u);
+      } catch (NoSuchElementException e) {
+        SUser.add(u);
+      }
+    }
+    return true;
   }
 
   /**

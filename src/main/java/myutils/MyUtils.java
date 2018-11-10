@@ -20,5 +20,4 @@ public class MyUtils {
   public static Role findNationality(String tag) {
     return FPR.nationality().get(tag);
   }
-
 }

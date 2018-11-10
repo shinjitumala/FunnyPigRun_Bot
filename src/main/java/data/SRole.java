@@ -1,11 +1,15 @@
 package data;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 import org.javacord.api.entity.permission.Role;
 
 import main.FPR;
+import myutils.UFiles;
+import myutils.enums.EFiles;
 
 public class SRole implements Serializable {
 
@@ -32,4 +36,24 @@ public class SRole implements Serializable {
     return tag;
   }
 
+  @SuppressWarnings("unchecked")
+  public static boolean load() {
+    try {
+      Object obj = UFiles.readObject(EFiles.NATIONALITY.toString());
+      for (SRole r : (ArrayList<SRole>) obj) {
+        FPR.nationality().put(r.tag(), r.restore());
+      }
+    } catch (IOException | ClassNotFoundException e) {
+      return false;
+    }
+    return true;
+  }
+
+  public static boolean save() {
+    ArrayList<SRole> list = new ArrayList<>();
+    for (String key : FPR.nationality().keySet()) {
+      list.add(new SRole(FPR.nationality().get(key), key));
+    }
+    return UFiles.writeObject(list, EFiles.NATIONALITY.toString());
+  }
 }
