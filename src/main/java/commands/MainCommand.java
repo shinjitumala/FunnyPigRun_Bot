@@ -29,14 +29,16 @@ public class MainCommand implements MessageCreateListener {
    *
    * @param command new command module
    */
-  public void addModule(ICommand command) {
-    try {
-      command.getClass().getAnnotation(ACommand.class);
-    } catch (NullPointerException e) {
-      FPR.log().fatal("MainCommand: Tried to add invalid module to commands.");
-      System.exit(1);
+  public void addModule(ICommand... command) {
+    for (ICommand c : command) {
+      try {
+        c.getClass().getAnnotation(ACommand.class);
+      } catch (NullPointerException e) {
+        FPR.logger.fatal("MainCommand: Tried to add invalid module to commands.");
+        System.exit(1);
+      }
+      commands.add(c);
     }
-    commands.add(command);
   }
 
   /**
@@ -75,12 +77,12 @@ public class MainCommand implements MessageCreateListener {
     }
 
     String message = event.getMessageContent();
-    FPR.log().info(event.getMessage().getAuthor().getDiscriminatedName() + ": " + message);
+    FPR.logger.info(event.getMessage().getAuthor().getDiscriminatedName() + ": " + message);
     // ***************************************************************//
     // Non Commands
     // ***************************************************************//
     // Call leveling system
-    FPR.level().chat(event);
+    FPR.levelcore.chat(event);
 
     // ***************************************************************//
     // Commands
@@ -89,7 +91,7 @@ public class MainCommand implements MessageCreateListener {
       return; // Ignore if message does not have prefix.
     }
 
-    FPR.log().debug("MainCommand: Command recieved.");
+    FPR.logger.debug("MainCommand: Command recieved.");
     // New scanner for parsing commands.
     Scanner scanner = new Scanner(message);
     scanner.skip(PREFIX);
@@ -109,7 +111,7 @@ public class MainCommand implements MessageCreateListener {
           } else if (help) {
             EmbedBuilder embed = UTemplates
                 .helpTemplate(annotation.command(), annotation.help(),
-                    FPR.getRole(annotation.permission().toString()));
+                    FPR.roles.get(annotation.permission().toString()));
             event.getChannel().sendMessage(embed);
             return;
           } else {
@@ -121,6 +123,6 @@ public class MainCommand implements MessageCreateListener {
         }
       }
     }
-    FPR.log().debug("MainCommand: No such command!");
+    FPR.logger.debug("MainCommand: No such command!");
   }
 }

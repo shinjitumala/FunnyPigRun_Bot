@@ -17,7 +17,9 @@ public class UFiles {
    * @return returns false if failed
    */
   public static boolean writeObject(Object o, String path) {
-    try (ObjectOutputStream oos = new ObjectOutputStream(new DeflaterOutputStream(new FileOutputStream(path)))) {
+    try (
+        ObjectOutputStream oos = new ObjectOutputStream(
+            new DeflaterOutputStream(new FileOutputStream(path)))) {
       oos.writeObject(o);
       return true;
     } catch (IOException e) {
@@ -34,7 +36,9 @@ public class UFiles {
    * @throws IOException
    */
   public static Object readObject(String path) throws ClassNotFoundException, IOException {
-    try (ObjectInputStream ois = new ObjectInputStream(new InflaterInputStream(new FileInputStream(path)))) {
+    try (
+        ObjectInputStream ois = new ObjectInputStream(
+            new InflaterInputStream(new FileInputStream(path)))) {
       Object ret = ois.readObject();
       return ret;
     } catch (ClassNotFoundException e) {
@@ -43,4 +47,17 @@ public class UFiles {
       throw new IOException(e);
     }
   }
+
+  // public static <V> void save(HashMap<String, V> hashmap, String file) throws
+  // ExCommandException {
+  // ArrayList<V> list = new ArrayList<>();
+  // for (String key : hashmap.keySet()) {
+  // Class<V> classv;
+  // list.add(classv.newInstance(hashmap.get(key), key));
+  // }
+  // if (!UFiles.writeObject(list, file)) {
+  // FPR.logger.error("Error occured while writing to " + file + ".");
+  // throw new ExCommandException("Error writing to file.");
+  // }
+  // }
 }

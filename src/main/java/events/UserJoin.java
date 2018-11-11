@@ -30,29 +30,29 @@ public class UserJoin implements ServerMemberJoinListener {
             Color.GREEN)
           .addField("Rules",
               "Please take the time and read "
-                  + FPR.getTextChannel(ETextChannels.RULES.toString()).getMentionTag()
+                  + FPR.textChannels.get(ETextChannels.RULES.toString()).getMentionTag()
                   + " so that we don't end up in any misunderstandings.")
           .addField("Roles",
               "All users in this server is given a role based on their nationality."
                   + " We can see how gamers from all over the world are coming together here.\n\n"
                   + "For now, you will be given the role "
-                  + FPR.getRole(ERoles.DRIFTER.toString()).getMentionTag() + ".\n\n"
+                  + FPR.roles.get(ERoles.DRIFTER.toString()).getMentionTag() + ".\n\n"
                   + "You can assign yourself in an exisiting role using the `" + MainCommand.PREFIX
                   + "iam <role tag>` command. You can notify " + FPR.me().getMentionTag()
                   + " to create a new role for you by using the `" + MainCommand.PREFIX
                   + "iam NULL` command.")
           .addField("The shameless self promotion", FPR.me().getDisplayName(FPR.server())
               + " does some stuff online.\n" + "You can find out more by checking "
-              + FPR.getTextChannel(ETextChannels.SELF_PROMOTION.toString()).getMentionTag() + ".")
+              + FPR.textChannels.get(ETextChannels.SELF_PROMOTION.toString()).getMentionTag() + ".")
           .addField(FPR.server().getName(),
               "This server now has " + FPR.server().getMemberCount() + " members!");
 
-    FPR.getTextChannel(ETextChannels.TOWNHALL.toString()).sendMessage(embed);
+    FPR.textChannels.get(ETextChannels.TOWNHALL.toString()).sendMessage(embed);
 
     try {
-      user.addRole(FPR.getRole(ERoles.DRIFTER.toString())).get();
+      user.addRole(FPR.roles.get(ERoles.DRIFTER.toString())).get();
     } catch (InterruptedException | ExecutionException e) {
-      FPR.log().error("UserJoin: Error adding role to User " + user.getDiscriminatedName());
+      FPR.logger.error("UserJoin: Error adding role to User " + user.getDiscriminatedName());
     }
   }
 

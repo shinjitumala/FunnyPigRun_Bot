@@ -20,7 +20,7 @@ public class UserUnban implements ServerMemberUnbanListener {
     EmbedBuilder embed = UTemplates
         .embedTemplate("Hm...", user.getMentionTag() + " has been unbanned from the server!", Color.YELLOW);
 
-    FPR.getTextChannel(ETextChannels.TOWNHALL.toString()).sendMessage(embed);
+    FPR.textChannels.get(ETextChannels.TOWNHALL.toString()).sendMessage(embed);
   }
 
 }

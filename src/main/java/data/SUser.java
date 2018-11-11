@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.javacord.api.entity.user.User;
 
+import commands.ExCommandException;
 import level.LevelUserData;
 import main.FPR;
 import myutils.UFiles;
@@ -84,22 +85,25 @@ public class SUser implements Serializable {
   /**
    * Save the current members data.
    *
-   * @return
+   * @throws ExCommandException
    */
-  public static boolean save() {
-    return UFiles.writeObject(members, EFiles.MEMBERS.toString());
+  public static void save() throws ExCommandException {
+    if (!UFiles.writeObject(members, EFiles.MEMBERS.toString())) {
+      FPR.logger.error("Error occured while writing to " + EFiles.MEMBERS.toString() + ".");
+      throw new ExCommandException("Error writing to file.");
+    }
   }
 
   /**
    * Restores members data from file.
    */
   @SuppressWarnings("unchecked")
-  public static boolean load() {
+  public static void load() {
     try {
       Object obj = UFiles.readObject(EFiles.MEMBERS.toString());
       members = new ArrayList<>((ArrayList<SUser>) obj);
     } catch (ClassNotFoundException | IOException e) {
-      return false;
+      FPR.logger.error("Main: Error while reading \"" + EFiles.MEMBERS.toString() + "\".");
     }
     Collection<User> temp = FPR.server().getMembers();
     for (User u : temp) {
@@ -109,7 +113,6 @@ public class SUser implements Serializable {
         SUser.add(u);
       }
     }
-    return true;
   }
 
   /**

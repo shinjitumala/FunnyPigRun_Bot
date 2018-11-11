@@ -1,10 +1,7 @@
 package commands.utilities;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
 
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
@@ -15,8 +12,10 @@ import commands.ACommand;
 import commands.ExCommandException;
 import commands.ICommand;
 import commands.MainCommand;
+import data.SRole;
 import main.FPR;
 import myutils.MyUtils;
+import myutils.UParse;
 import myutils.UTemplates;
 import myutils.enums.ERoles;
 
@@ -31,45 +30,25 @@ public class Iam implements ICommand {
 
   @Override
   public boolean run(MessageCreateEvent event, Scanner scanner) throws ExCommandException {
-    String tag;
-    try {
-      tag = scanner.next();
-    } catch (NoSuchElementException e) {
-      throw new ExCommandException("Insufficient arguments.");
-    }
+    String tag = UParse.parseString(scanner);
 
     Role nationality = MyUtils.findNationality(tag);
-    if (nationality == null) {
-      FPR.log().error("CUtilites: iam() > Cannot find a role with tag \"" + tag + "\".");
-      throw new ExCommandException("Cannot find a role with that tag.");
-    }
-
-    Optional<User> user = event.getMessage().getUserAuthor();
-    if (user.isPresent()) {
-      try {
-        List<Role> roles = user.get().getRoles(FPR.server());
-        for (String key : FPR.nationality().keySet()) {
-          Role n = FPR.nationality().get(key);
-          for (Role r : roles) {
-            if (r.equals(n)) {
-              user.get().removeRole(r).get();
-            }
-          }
+    User user = MyUtils.get(event.getMessage().getUserAuthor());
+    List<Role> roles = user.getRoles(FPR.server());
+    for (String key : SRole.nationality.keySet()) {
+      Role n = SRole.nationality.get(key);
+      for (Role r : roles) {
+        if (r.equals(n)) {
+          MyUtils.wait(user.removeRole(r));
         }
-
-        user.get().addRole(nationality).get();
-      } catch (InterruptedException | ExecutionException e) {
-        FPR.log().error("CUtilites: iam() > Error while managing roles.");
-        throw new ExCommandException("Error while managing roles.");
       }
-
-      EmbedBuilder embed = UTemplates
-          .completeTemplate(user.get().getMentionTag() + ", your role has been changed to "
-              + nationality.getMentionTag() + ".");
-      event.getChannel().sendMessage(embed);
-      return true;
-    } else {
-      throw new ExCommandException("Target user is missing.");
     }
+    MyUtils.wait(user.addRole(nationality));
+
+    EmbedBuilder embed = UTemplates
+        .completeTemplate(user.getMentionTag() + ", your role has been changed to "
+            + nationality.getMentionTag() + ".");
+    event.getChannel().sendMessage(embed);
+    return true;
   }
 }

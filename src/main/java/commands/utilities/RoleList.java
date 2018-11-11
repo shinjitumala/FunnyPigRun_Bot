@@ -12,6 +12,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import commands.ACommand;
 import commands.ExCommandException;
 import commands.ICommand;
+import data.SRole;
 import main.FPR;
 import myutils.UTemplates;
 import myutils.enums.ERoles;
@@ -31,12 +32,11 @@ public class RoleList implements ICommand {
     });
 
     StringBuilder sb = new StringBuilder();
-
     for (Role r : roles) {
       if (r.isMentionable() && !r.isEveryoneRole()) {
         sb.append(r.getMentionTag());
-        for (String key : FPR.nationality().keySet()) {
-          if (FPR.nationality().get(key).equals(r)) {
+        for (String key : SRole.nationality.keySet()) {
+          if (SRole.nationality.get(key).equals(r)) {
             sb.append(": " + key);
           }
         }

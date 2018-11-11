@@ -7,6 +7,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import commands.ExCommandException;
 import data.SUser;
 import main.FPR;
 import myutils.UTemplates;
@@ -30,15 +31,14 @@ public class LevelCore {
       suser.level.addXP(2);
       if (suser.level.updateLevel() > currentLevel) {
         EmbedBuilder embed = UTemplates
-            .embedTemplate("Level up!", "Congratulations, " + user.getMentionTag() + "!\n" + "You have reached **level "
-                + suser.level.level() + "**.", Color.CYAN);
+            .embedTemplate("Level up!", "Congratulations, " + user.getMentionTag() + "!\n"
+                + "You have reached **level " + suser.level.level() + "**.", Color.CYAN);
         event.getChannel().sendMessage(embed);
       }
-      if (!SUser.save()) {
-        FPR.log().error("LevelCore: chat() > Error while saving user data.");
-      }
+      SUser.save();
     } catch (NoSuchElementException e) {
-      FPR.log().error("LevelCore: chat() > User was not found in the database.");
+      FPR.logger.error("LevelCore: chat() > User was not found in the database.");
+    } catch (ExCommandException e) {
     }
   }
 }

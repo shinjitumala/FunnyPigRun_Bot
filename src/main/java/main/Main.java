@@ -7,6 +7,7 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 
 import commands.MainCommand;
+import commands.admin.Ban;
 import commands.admin.RoleAdd;
 import commands.utilities.Iam;
 import commands.utilities.Ping;
@@ -17,7 +18,6 @@ import events.UserBan;
 import events.UserJoin;
 import events.UserLeave;
 import events.UserUnban;
-import myutils.enums.EFiles;
 import myutils.enums.ERoles;
 import myutils.enums.ETextChannels;
 
@@ -33,7 +33,7 @@ public class Main {
       System.exit(1);
     }
 
-    FPR.log().info("Starting bot...");
+    FPR.logger.info("Starting bot...");
 
     // Log in
     String token = args[0];
@@ -48,54 +48,48 @@ public class Main {
 
       // Channels
       FPR
-          .addTextChannel(ETextChannels.TOWNHALL.toString(),
+          .textChannels.put(ETextChannels.TOWNHALL.toString(),
               FPR.server().getTextChannelById("414316475797602305").get());
       FPR
-          .addTextChannel(ETextChannels.SELF_PROMOTION.toString(),
+          .textChannels.put(ETextChannels.SELF_PROMOTION.toString(),
               FPR.server().getTextChannelById("414316416318177291").get());
       FPR
-          .addTextChannel(ETextChannels.RULES.toString(),
+          .textChannels.put(ETextChannels.RULES.toString(),
               FPR.server().getTextChannelById("414318128516956163").get());
       FPR
-          .addTextChannel(ETextChannels.NEWS.toString(),
+          .textChannels.put(ETextChannels.NEWS.toString(),
               FPR.server().getTextChannelById("478821976186683402").get());
 
       FPR
-          .addTextChannel(ETextChannels.OINK_GENERAL.toString(),
+          .textChannels.put(ETextChannels.OINK_GENERAL.toString(),
               FPR.server().getTextChannelById("414319326238343169").get());
       FPR
-          .addTextChannel(ETextChannels.OINK_COMMANDS.toString(),
+          .textChannels.put(ETextChannels.OINK_COMMANDS.toString(),
               FPR.server().getTextChannelById("452361154925297684").get());
       FPR
-          .addTextChannel(ETextChannels.OINK_AGORA.toString(),
+          .textChannels.put(ETextChannels.OINK_AGORA.toString(),
               FPR.server().getTextChannelById("492303377544249344").get());
 
       // Roles
-      FPR.addRole(ERoles.PIGGIES.toString(), FPR.server().getRoleById("414316813183090689").get());
-      FPR.addRole(ERoles.OINK.toString(), FPR.server().getRoleById("414316850231377921").get());
-      FPR.addRole(ERoles.DRIFTER.toString(), FPR.server().getRoleById("481333688043307008").get());
+      FPR.roles
+          .put(ERoles.PIGGIES.toString(), FPR.server().getRoleById("414316813183090689").get());
+      FPR.roles.put(ERoles.OINK.toString(), FPR.server().getRoleById("414316850231377921").get());
+      FPR.roles
+          .put(ERoles.DRIFTER.toString(), FPR.server().getRoleById("481333688043307008").get());
 
-      // Initialize roles
-      if (!SRole.load()) {
-        FPR.log().error("Main: Error while reading \"" + EFiles.NATIONALITY.toString() + "\".");
-      }
-
-      // Initialize members
-      if (!SUser.load()) {
-        FPR.log().error("Main: Error while initializing user data.");
-      }
+      // Load files
+      SRole.load();
+      SUser.load();
 
     } catch (NoSuchElementException | InterruptedException | ExecutionException ex) {
-      FPR.log().fatal("Main: Failed to initialize variables for funny.pig.run Gaming. Exiting...");
+      FPR.logger.fatal("Main: Failed to initialize variables for funny.pig.run Gaming. Exiting...");
       System.exit(1);
     }
 
     // Initialize command modules
     MainCommand commands = new MainCommand();
-    commands.addModule(new RoleAdd());
-    commands.addModule(new Ping());
-    commands.addModule(new RoleList());
-    commands.addModule(new Iam());
+    commands.addModule(new RoleAdd(), new Ban());
+    commands.addModule(new Ping(), new RoleList(), new Iam());
 
     // Add event listeners
     api.addMessageCreateListener(commands);
@@ -104,6 +98,6 @@ public class Main {
     api.addServerMemberBanListener(new UserBan());
     api.addServerMemberUnbanListener(new UserUnban());
 
-    FPR.log().info("Done initializing bot!");
+    FPR.logger.info("Done initializing bot!");
   }
 }
